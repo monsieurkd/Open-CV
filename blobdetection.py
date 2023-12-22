@@ -3,7 +3,7 @@ import cv2
 import numpy as np;
  
 # Read image
-im = cv2.imread("2D-Geometric-Shapes.jpg", cv2.IMREAD_GRAYSCALE)
+im = cv2.imread("BlobTest.jpg", cv2.IMREAD_GRAYSCALE)
  
 # Set up the detector with default parameters.
 detector = cv2.SimpleBlobDetector_create()
