@@ -6,10 +6,28 @@ gray_image = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
 
 #binary threshold
 threshold, thresh_img = cv.threshold(gray_image, 128, 255, cv.THRESH_BINARY)
-cv.imshow("threshold img", thresh_img)
 
+kernel = np.zeros((5,5), np.uint8)
+erosion1 = cv.dilate(thresh_img, kernel, iterations= 1)
+
+cv.imshow('dilate', erosion1)
+
+#lay net 
 canny = cv.Canny(thresh_img, 144, 175)
 cv.imshow('canny', canny)
+
+
+
+
+kernel = np.ones((5,5), np.uint8)
+
+gradient = cv.morphologyEx(canny, cv.MORPH_GRADIENT, kernel)
+cv.imshow("Gradient", gradient)
+dialate_canny = cv.dilate(canny, kernel, iterations= 1)
+
+cv.imshow('dialate_canny', dialate_canny)
+
+
 
 # Define the lower and upper bounds for black color in grayscale
 lower_black = 0
@@ -31,6 +49,10 @@ for contour in contours:
 
 # Display the original grayscale image with rectangles
 cv.imshow('Contours and Rectangles', gray_image)
+
+
+
+
 #pixel detection
 
 #draw rectangle
