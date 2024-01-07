@@ -59,7 +59,7 @@ for location in  new_edge_detection:
 
     if location[1] + location[3] != height :
     # Draw a rectangle around the contour
-        cv.rectangle(gradient, (location[0], location[1]), (location[0]+location[2], location[1]+location[3]), (255, 0, 0), 3)  # Blue rectangle
+        cv.rectangle(gradient, (location[0], location[1]), (location[0]+location[2], location[1]+location[3]), (255, 0, 0), 1)  # Blue rectangle
     
 
 # Display the original grayscale image with rectangles
