@@ -22,3 +22,6 @@ cv.drawContours(mask,[cnt],0,255,-1)
 pixelpoints = np.transpose(np.nonzero(mask))
 print(pixelpoints)
 #pixelpoints = cv.findNonZero(mask)
+
+min_val, max_val, min_loc, max_loc = cv.minMaxLoc(thresh,mask = mask)
+mean_val = cv.mean(img,mask = mask)
