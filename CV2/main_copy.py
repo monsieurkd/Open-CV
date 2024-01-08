@@ -54,12 +54,14 @@ def merge_overlapping_rectangles(rectangles):
     rectangles.extend(merged_rectangles)
 
     # Check if any further merging is needed
-    return rectangles
+    if len(merged_rectangles) >0:
+        return merge_overlapping_rectangles(rectangles)
+    else: return rectangles
     
 
 
 # Call the recursive function
-final_rectangles = merge_overlapping_rectangles(merge_overlapping_rectangles(merge_overlapping_rectangles(bounding_rects)))
+final_rectangles = merge_overlapping_rectangles(bounding_rects)
 
 # Draw rectangles on the image
 for location in final_rectangles:

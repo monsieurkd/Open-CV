@@ -1,95 +1,80 @@
-import cv2 as cv 
+import cv2 as cv
 import numpy as np
 
-img = cv.imread('CV2/test_image/1_A000100002001_49.png')
-# img = cv.imread('CV2/test_image/13_A000200001003_35.png')
-gray_image = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
-#binary threshold
-threshold, thresh_img = cv.threshold(gray_image, 128, 255, cv.THRESH_BINARY)
-kernel = np.zeros((5,5), np.uint8)
-dilate = cv.dilate(thresh_img, kernel, iterations= 1)
-#lay net 
-canny = cv.Canny(thresh_img, 144, 175)
-kernel = np.ones((5,5), np.uint8)
-gradient = cv.morphologyEx(canny, cv.MORPH_GRADIENT, kernel)
 
 
-# Find contours in the binary mask
-contours, _ = cv.findContours(gradient, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE)
-gradient = cv.cvtColor(gradient, cv.COLOR_GRAY2BGR)
+def process_image(img):
+    gray_image = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
+    threshold, thresh_img = cv.threshold(gray_image, 128, 255, cv.THRESH_BINARY)
+    kernel = np.zeros((5, 5), np.uint8)
+    dilate = cv.dilate(thresh_img, kernel, iterations=1)
+    canny = cv.Canny(thresh_img, 144, 175)
+    kernel = np.ones((5, 5), np.uint8)
+    gradient = cv.morphologyEx(canny, cv.MORPH_GRADIENT, kernel)
 
-height, width = gradient.shape[:2]
-bounding_rects = [cv.boundingRect(contour) for contour in contours]
-print(bounding_rects[3])
-# contour1 = contours[13]
-# contour2 = contours[3]
+    # Find contours in the binary mask
+    contours, _ = cv.findContours(gradient, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE)
+    gradient = cv.cvtColor(gradient, cv.COLOR_GRAY2BGR)
 
-# x1, y1, w1, h1 = cv.boundingRect(contour1)
-# x2, y2, w2, h2 = cv.boundingRect(contour2)
+    height, width = gradient.shape[:2]
+    bounding_rects = [cv.boundingRect(contour) for contour in contours]
 
-# # Calculate the new bounding rectangle that surrounds both contours
-# new_x = min(x1, x2)
-# new_y = min(y1, y2)
-# new_w = max(x1 + w1, x2 + w2) - new_x
-# new_h = max(y1 + h1, y2 + h2) - new_y
+    # A function to check if two rectangles overlap
+    def rectangles_overlap(rect1, rect2):
+        return (
+            rect1[0] < rect2[0] + rect2[2]  and
+            rect1[0] + rect1[2] > rect2[0] and
+            rect1[1] < rect2[1] + rect2[3]  and
+            rect1[1] + rect1[3]  > rect2[1]
+        )
 
-# # Create a new contour based on the new bounding rectangle
-# new_contour = np.array([[[new_x, new_y]], [[new_x + new_w, new_y]], [[new_x + new_w, new_y + new_h]],
-#                         [[new_x, new_y + new_h]]], dtype=np.int32)
+    def merge_overlapping_rectangles(rectangles):
+        merged_rectangles = []
+        mark_for_deletion = []
 
-# # Optionally, draw the original contours and the new bounding rectangle on the image
-# cv.drawContours(gradient, [contour1, contour2], -1, (0, 255, 0), 2)
-# cv.drawContours(gradient, [new_contour], -1, (0, 0, 255), 2)
+        for i in range(len(rectangles)):
+            for j in range(i + 1, len(rectangles)):
+                if rectangles_overlap(rectangles[i], rectangles[j]):
+                    # Calculate the new bounding rectangle that includes both rectangles
+                    new_x = min(rectangles[i][0], rectangles[j][0])
+                    new_y = min(rectangles[i][1], rectangles[j][1])
+                    new_w = max(rectangles[i][0] + rectangles[i][2], rectangles[j][0] + rectangles[j][2]) - new_x
+                    new_h = max(rectangles[i][1] + rectangles[i][3], rectangles[j][1] + rectangles[j][3]) - new_y
 
-# # Display the result
-# cv.imshow('Concatenated Contours', gradient)
-
-edge_detection = [] # a list of nearby contour need to be merge
-mark_for_deletion = []
-for i in range(len(bounding_rects)):
-    for j in range(i + 1, len(bounding_rects)):
-        #logic for nearby contour
-        if (
-                bounding_rects[i][0]< bounding_rects[j][0] + bounding_rects[j][2] and
-                bounding_rects[i][0] + bounding_rects[i][2] +5> bounding_rects[j][0] and
-                bounding_rects[i][1]< bounding_rects[j][1] + bounding_rects[j][3] and
-                bounding_rects[i][1] + bounding_rects[i][3] +5> bounding_rects[j][1]
-            ):     
-            x1, y1, w1, h1 = bounding_rects[i][0],  bounding_rects[i][1],  bounding_rects[i][2],  bounding_rects[i][3],
-            x2, y2, w2, h2 =  bounding_rects[j][0],  bounding_rects[j][1],  bounding_rects[j][2],  bounding_rects[j][3],
-
-# Calculate the new bounding rectangle that surrounds both contours
-            new_x = min(x1, x2)
-            new_y = min(y1, y2)
-            new_w = max(x1 + w1, x2 + w2) - new_x
-            new_h = max(y1 + h1, y2 + h2) - new_y
-
-# Create a new contour based on the new bounding rectangle
-            new_rect = (new_x, new_y, new_w, new_h)
-            edge_detection.append(new_rect)
-
-                #    x = min(x, x_other)
-#                 y = min(y, y_other)
-#                 w = max(x + w, x_other + w_other) - x
-#                 h = max(y + h, y_other + h_other) - y
-
-new_edge_detection =  list(dict.fromkeys(edge_detection))#remove the duplicate using dict.fromkeys()
+                    # Add the merged rectangle to the list
+                    merged_rectangles.append((new_x, new_y, new_w, new_h))
+                    mark_for_deletion.append(rectangles[i])
+                    mark_for_deletion.append(rectangles[j])
 
 
-# my_tuple = new_edge_detection[0]
+        # Remove rectangles marked for deletion
+        rectangles = [rect for rect in rectangles if rect not in mark_for_deletion]
 
-for location in  new_edge_detection:
+        # Add the newly created rectangles
+        rectangles.extend(merged_rectangles)
 
-    if location[1] + location[3] != height : #logic to remove the lower edge letter
-    # Draw a rectangle around the contour
-        cv.rectangle(gradient, (location[0], location[1]), (location[0]+location[2], location[1]+location[3]), (255, 0, 0), 2)  # Blue rectangle
+        # Check if any further merging is needed
+        if len(merged_rectangles) >0:
+            return merge_overlapping_rectangles(rectangles)
+        else: return rectangles
     
 
-# Display the original grayscale image with rectangles
-cv.imshow('Contours and Rectangles', gradient)
 
+# Call the recursive function
+    final_rectangles = merge_overlapping_rectangles(bounding_rects)
 
+# Draw rectangles on the image
+    for location in final_rectangles:
+        if location[1] + location[3] != height:
+            cv.rectangle(gradient, (location[0], location[1]), (location[0] + location[2], location[1] + location[3]), (255, 0, 0), 2)
 
-#logic to remove noise
+    return gradient
 
-cv.waitKey(0)
+# Process each image and display the result
+# img = cv.imread('CV2/test_image/1_A000100002001_49.png')
+# # img = cv.imread('CV2/test_image/1_A000100002001_50.png')
+# processed_image = process_image(img)
+# cv.imshow('Processed Image', processed_image)
+# cv.waitKey(0)
+
+# cv.destroyAllWindows()
