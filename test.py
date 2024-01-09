@@ -24,4 +24,24 @@ def duplicateZeros( arr) :
                 
         return arr
 arr = [1,2,0,3,0,4,8,5]
-print(duplicateZeros(arr))
+import re
+def generate_hashtag(s):
+    #your code here
+    if len(s) >140 or len(s) == 0:
+        return False
+#     word_list = re.split(r'\s+', s) 
+    word_list = s.split(' ')
+    word_list = [a for a in word_list if a != '']
+    print(word_list)
+    word = '#'
+    for i in range(len(word_list)):
+        
+        word_list[i] = word_list[i][0].upper() + word_list[i].lower()[1:]
+
+        
+        word = word + word_list[i]
+        
+    return word
+
+print(generate_hashtag('CoDeWaRs is    niCe'))
+print(len('ABbCccDdddEeeeeFfffffGggggggHhhhhhhhIiiiiiiiiJjjjjjjjjjKkkkkkkkkkkLlllllllllllMmmmmmmmmmmmmNnnnnnnnnnnnnnOooooooooooooooPpppppppppppppppQqq'))

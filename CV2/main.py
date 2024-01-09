@@ -66,15 +66,15 @@ def process_image(img):
 # Draw rectangles on the image
     for location in final_rectangles:
         if location[1] + location[3] != height:
-            cv.rectangle(gradient, (location[0], location[1]), (location[0] + location[2], location[1] + location[3]), (255, 0, 0), 2)
+            cv.rectangle(img, (location[0], location[1]), (location[0] + location[2], location[1] + location[3]), (255, 0, 0), 2)
 
-    return gradient
+    return img
 
 # Process each image and display the result
-# img = cv.imread('CV2/test_image/1_A000100002001_49.png')
-# # img = cv.imread('CV2/test_image/1_A000100002001_50.png')
-# processed_image = process_image(img)
-# cv.imshow('Processed Image', processed_image)
-# cv.waitKey(0)
+img = cv.imread('CV2/test_image/1_A000100002001_49.png')
+# img = cv.imread('CV2/test_image/1_A000100002001_50.png')
+processed_image = process_image(img)
+cv.imshow('Processed Image', processed_image)
+cv.waitKey(0)
 
-# cv.destroyAllWindows()
+cv.destroyAllWindows()
