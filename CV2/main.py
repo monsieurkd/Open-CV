@@ -76,10 +76,10 @@ def process_image(img):
     return img
 
 # Process each image and display the result
-# img = cv.imread('CV2/test_image/1_A000100002001_49.png')
-# # img = cv.imread('CV2/test_image/1_A000100002001_50.png')
-# processed_image = process_image(img)
-# cv.imshow('Processed Image', processed_image)
-# cv.waitKey(0)
+img = cv.imread('CV2/test_image/1_A000100002001_49.png')
+# img = cv.imread('CV2/test_image/1_A000100002001_50.png')
+processed_image = process_image(img)
+cv.imshow('Processed Image', processed_image)
+cv.waitKey(0)
 
-# cv.destroyAllWindows()
+cv.destroyAllWindows()
