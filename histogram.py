@@ -3,25 +3,28 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 img = cv.imread('picture/cat.jpg')
-cv.imshow("Original Image", img)
 
 blank = np.zeros(img.shape[:2], dtype= 'uint8')
 
 
 gray = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
-cv.imshow("gray", gray)
 
+#make a mask
 circle = cv.circle(blank, (img.shape[1]//2,img.shape[0]//2), 200, 255, -1)
-cv.imshow('circle', circle)
 
 
  
 mask = cv.bitwise_and(gray, gray, mask=circle)
 
-cv.imshow('mask', mask)
 
 gray_hist = cv.calcHist([gray], [0], None, [256], [0,256])
 mask_hist = cv.calcHist([gray], [0], mask, [256], [0,256])
+
+color = ('b','g','r')
+for i,col in enumerate(color):
+    histr = cv.calcHist([img],[i],None,[256],[0,256])
+    plt.plot(histr,color = col)
+    plt.xlim([0,256])
 
 
 plt.figure()

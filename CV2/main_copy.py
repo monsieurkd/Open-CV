@@ -1,11 +1,11 @@
 import cv2 as cv 
 import numpy as np
 
-# img = cv.imread('CV2/test_image/1_A000100002001_49.png')
+img = cv.imread('CV2/test_image/1_A000100002001_49.png')
 # img = cv.imread('CV2/test_image/5_A000100006001_29.png')
 # img = cv.imread('CV2/test_image/4_A000100005001_44.png')
 # Load the image
-img = cv.imread('CV2/test_image/4_A000100005001_37.png')
+# img = cv.imread('CV2/test_image/4_A000100005001_37.png')
 
 # Convert the image to grayscale
 gray_image = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
@@ -16,6 +16,8 @@ threshold, thresh_img = cv.threshold(gray_image, 128, 255, cv.THRESH_BINARY)
 # Resize the binary image for better visibility
 height, width = thresh_img.shape[:2]
 thresh_img = cv.resize(thresh_img, (width * 2, height * 2))
+#nếu dùng ảnh đầu tiên, comment code dòng 18 thì sẽ là xử lí ảnh bình thường và không lỗi, còn ba ảnh phía dưới đều sẽ lỗi nếu phóng to và xử lí ảnh 
+
 
 # Apply dilation to fill gaps in between objects
 kernel = np.zeros((5, 5), np.uint8)

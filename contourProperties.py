@@ -26,7 +26,7 @@ rect_area = w * h
 
 # Find convex hull for the contour
 hull = cv.convexHull(cnt)
-cv.drawContours(img, hull, -1, (0,255,0), 2 )
+cv.drawContours(img, hull, -1, (0,255,0), 5 )
 cv.imshow('img', img)
 
 # Calculate hull area
@@ -56,9 +56,16 @@ pixelpoints = np.transpose(np.nonzero(mask))
 
 # Calculate the minimum and maximum values within the contour, as well as their locations
 min_val, max_val, min_loc, max_loc = cv.minMaxLoc(thresh, mask=mask)
+print("min_val, max_val, min_loc, max_loc: ", min_val, max_val, min_loc, max_loc)
 
 # Calculate the mean value of the pixel points within the contour
 mean_val = cv.mean(img, mask=mask)
+print("mean value: ", mean_val)
 
-
+#extreme points for an object
+leftmost = tuple(cnt[cnt[:,:,0].argmin()][0])
+rightmost = tuple(cnt[cnt[:,:,0].argmax()][0])
+topmost = tuple(cnt[cnt[:,:,1].argmin()][0])
+bottommost = tuple(cnt[cnt[:,:,1].argmax()][0])
+print("leftmost, rightmost, topmost, bottommost corner of an object", leftmost, rightmost, topmost, bottommost)
 cv.waitKey(0)
