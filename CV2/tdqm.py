@@ -19,13 +19,14 @@ image_paths = [
     "CV2/test_image/1_A000100002001_50.png",
     "CV2/test_image/2_A000100003001_9.png",
     "CV2/test_image/2_A000100003001_21.png",
-    "CV2/test_image/4_A000100005001_37.png",
-    "CV2/test_image/4_A000100005001_44.png",
+    
+    
     "CV2/test_image/5_A000100006001_29.png",
     "CV2/test_image/13_A000200001003_4.png",
-    "CV2/test_image/13_A000200001003_35.png"
-]  # Add your image paths
+    
+]  # 6 is the maximum the computer can take
 
+image_paths_produce_error = ["CV2/test_image/4_A000100005001_37.png", "CV2/test_image/4_A000100005001_44.png"]
 # Function to process images using ThreadPoolExecutor
 def process_images_parallel(image_paths):
     with concurrent.futures.ThreadPoolExecutor() as executor:
