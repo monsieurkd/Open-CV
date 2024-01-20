@@ -15,7 +15,7 @@ threshold, thresh_img = cv.threshold(gray_image, 128, 255, cv.THRESH_BINARY)
 
 # Resize the binary image for better visibility
 height, width = thresh_img.shape[:2]
-thresh_img = cv.resize(thresh_img, (width * 2, height * 2))
+# thresh_img = cv.resize(thresh_img, (width * 2, height * 2))
 #nếu dùng ảnh đầu tiên, comment code dòng 18 thì sẽ là xử lí ảnh bình thường và không lỗi, còn ba ảnh phía dưới đều sẽ lỗi nếu phóng to và xử lí ảnh 
 
 
@@ -100,4 +100,3 @@ for location in final_rectangles:
 cv.imshow('Contours and Merged Rectangles', img)
 cv.waitKey(0)
 cv.destroyAllWindows()
-

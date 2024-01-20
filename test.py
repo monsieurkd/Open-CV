@@ -48,23 +48,39 @@ import numpy as np
 # print(generate_hashtag('CoDeWaRs is    niCe'))
 # print(len('ABbCccDdddEeeeeFfffffGggggggHhhhhhhhIiiiiiiiiJjjjjjjjjjKkkkkkkkkkkLlllllllllllMmmmmmmmmmmmmNnnnnnnnnnnnnnOooooooooooooooPpppppppppppppppQqq'))
 
-image_paths = [
-    "CV2/test_image/1_A000100002001_49.png",
-    "CV2/test_image/1_A000100002001_50.png",
-    "CV2/test_image/2_A000100003001_9.png",
-    "CV2/test_image/2_A000100003001_21.png",
-    "CV2/test_image/4_A000100005001_37.png",
-    "CV2/test_image/4_A000100005001_44.png",
-    "CV2/test_image/5_A000100006001_29.png",
-    "CV2/test_image/13_A000200001003_4.png",
-    "CV2/test_image/13_A000200001003_35.png"
-]  
-image = ()
-for i in image_paths:
-    img = cv.imread(i)
-    image += img
+# image_paths = [
+#     "CV2/test_image/1_A000100002001_49.png",
+#     "CV2/test_image/1_A000100002001_50.png",
+#     "CV2/test_image/2_A000100003001_9.png",
+#     "CV2/test_image/2_A000100003001_21.png",
+#     "CV2/test_image/4_A000100005001_37.png",
+#     "CV2/test_image/4_A000100005001_44.png",
+#     "CV2/test_image/5_A000100006001_29.png",
+#     "CV2/test_image/13_A000200001003_4.png",
+#     "CV2/test_image/13_A000200001003_35.png"
+# ]  
+# image = ()
+# for i in image_paths:
+#     img = cv.imread(i)
+#     image += img
 
 
-res = np.hstack(image) #stacking images side-by-side
-cv.imwrite('merge.png',res)
-cv.imshow('merged', res)
+# res = np.hstack(image) #stacking images side-by-side
+# cv.imwrite('merge.png',res)
+# cv.imshow('merged', res)
+
+
+import matplotlib.pyplot as plt
+import numpy as np
+
+# Create a 2x3 matrix (2D array)
+matrix = np.array([[1, 2, 3],
+                   [4, 5, 6]])
+
+# Flatten the matrix using .ravel()
+flattened_array = matrix.ravel()
+print(flattened_array)
+# Plot the flattened array
+plt.plot(flattened_array, marker='o', linestyle='-', color='b')
+plt.title('Flattened Array')
+plt.show()

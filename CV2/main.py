@@ -1,85 +1,87 @@
-import cv2 as cv
+import cv2
+import processing_functions as func
 import numpy as np
 
+# Define constants
+GREEN = (0, 255, 0)
+RED = (0, 0, 255)
+FONT = cv2.FONT_HERSHEY_SIMPLEX
+FONT_SCALE = 0.5
+FONT_THICKNESS = 1
 
+# Create a kernel for erosion
+# [ 1,
+#   1,
+#   1 ]
+kernel = np.ones((3, 1), dtype=np.uint8)            
 
-def process_image(img):
-    '''
-    process an image and return the same image with letter dectection using contour 
-    Input: a Matlike image 
-    Output: a MatLike image with rectangle
-    '''
-    gray_image = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
-    threshold, thresh_img = cv.threshold(gray_image, 128, 255, cv.THRESH_BINARY)
-    kernel = np.zeros((5, 5), np.uint8)
-    dilate = cv.dilate(thresh_img, kernel, iterations=1)
-    canny = cv.Canny(thresh_img, 144, 175)
-    kernel = np.ones((5, 5), np.uint8)
-    gradient = cv.morphologyEx(canny, cv.MORPH_GRADIENT, kernel)
+# Get file names of test images
+file_names = func.get_file_names("CV2/test_image")
 
-    # Find contours in the binary mask
-    contours, _ = cv.findContours(gradient, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE)
-    gradient = cv.cvtColor(gradient, cv.COLOR_GRAY2BGR)
+# Process each image
+for file_name in file_names:
+    # Load the input image
+    image = cv2.imread("CV2/test_image/" + file_name)
+    print(file_name)
 
-    height, width = gradient.shape[:2]
-    bounding_rects = [cv.boundingRect(contour) for contour in contours]
+    # Resize the image to a larger size
+    height, width = image.shape[:2]
+    size = height * width
+    # resized = cv2.resize(image, (width * 7, height * 2))
 
-    # A function to check if two rectangles overlap
-    def rectangles_overlap(rect1, rect2):
-        return (
-            rect1[0] < rect2[0] + rect2[2]  and
-            rect1[0] + rect1[2] > rect2[0] and
-            rect1[1] < rect2[1] + rect2[3]  and
-            rect1[1] + rect1[3]  > rect2[1]
-        )
+    # Convert the resized image to grayscale
+    resized = image
+    gray = cv2.cvtColor(resized, cv2.COLOR_BGR2GRAY)
 
-    def merge_overlapping_rectangles(rectangles):
-        merged_rectangles = []
-        mark_for_deletion = []
+    # Apply binary thresholding
+    ret, thresh = cv2.threshold(gray, 127, 255, cv2.THRESH_BINARY)
 
-        for i in range(len(rectangles)):
-            for j in range(i + 1, len(rectangles)):
-                if rectangles_overlap(rectangles[i], rectangles[j]):
-                    # Calculate the new bounding rectangle that includes both rectangles
-                    new_x = min(rectangles[i][0], rectangles[j][0])
-                    new_y = min(rectangles[i][1], rectangles[j][1])
-                    new_w = max(rectangles[i][0] + rectangles[i][2], rectangles[j][0] + rectangles[j][2]) - new_x
-                    new_h = max(rectangles[i][1] + rectangles[i][3], rectangles[j][1] + rectangles[j][3]) - new_y
+    # Smooth the thresholded image using erosion
+    smoothened = cv2.erode(thresh, kernel, iterations=1)
 
-                    # Add the merged rectangle to the list
-                    merged_rectangles.append((new_x, new_y, new_w, new_h))
-                    mark_for_deletion.append(rectangles[i])
-                    mark_for_deletion.append(rectangles[j])
+    # Find contours in the smoothened image
+    contours, hierarchies = cv2.findContours(smoothened, cv2.RETR_CCOMP, cv2.CHAIN_APPROX_SIMPLE)
 
+    # Draw contours on the smoothened image
+    cv2.drawContours(smoothened, contours, -1, RED, 1)
 
-        # Remove rectangles marked for deletion
-        rectangles = [rect for rect in rectangles if rect not in mark_for_deletion]
+    # Prepare a list to store valid rectangles
+    rectanglesToDraw = []
 
-        # Add the newly created rectangles
-        rectangles.extend(merged_rectangles)
+    # Process each contour
+    for i in range(len(contours)):
+        # Calculate the area of the contour
+        area = cv2.contourArea(contours[i])
 
-        # Check if any further merging is needed
-        if len(merged_rectangles) >0:
-            return merge_overlapping_rectangles(rectangles)
-        else: return rectangles
-    
+        # Filter out contours based on area
+        if area < size and area > (size * 0.005):
+            # Obtain the bounding rectangle coordinates
+            x, y, w, h = cv2.boundingRect(contours[i])
 
+            # Adjust the coordinates based on image resizing
+            # x = int(x / 7)
+            # y = int(y / 2)
+            # w = int(w / 7)
+            # h = int(h / 2)
 
-# Call the recursive function
-    final_rectangles = merge_overlapping_rectangles(bounding_rects)
+            # Filter out undesired rectangles
+            if w < width and x > 0 and y < (height * 0.9):
+                rectanglesToDraw.append([x, y, w, h])
 
-# Draw rectangles on the image
-    for location in final_rectangles:
-        if location[1] + location[3] != height:
-            cv.rectangle(img, (location[0], location[1]), (location[0] + location[2], location[1] + location[3]), (255, 0, 0), 2)
+    # Calculate a threshold value
+    thresh = size / 32000
 
-    return img
+    # Filter rectangles based on overlap, closeness, and overlap again
+    rectanglesToDraw = func.filterOverlap(rectanglesToDraw)
+    rectanglesToDraw = func.filterClose(rectanglesToDraw, thresh)
+    rectanglesToDraw = func.filterOverlap(rectanglesToDraw)
 
-# Process each image and display the result
-img = cv.imread('CV2/test_image/1_A000100002001_49.png')
-# img = cv.imread('CV2/test_image/1_A000100002001_50.png')
-processed_image = process_image(img)
-cv.imshow('Processed Image', processed_image)
-cv.waitKey(0)
+    # Draw the filtered rectangles on the original image
+    func.drawRectangle(image, rectanglesToDraw)
 
-cv.destroyAllWindows()
+    # Save the resulting image
+    cv2.imwrite("./results" + file_name, image)
+
+    # Display the image and wait for a key press
+    cv2.waitKey(0)
+    cv2.destroyAllWindows()
